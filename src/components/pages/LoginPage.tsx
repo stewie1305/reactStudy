@@ -2,6 +2,18 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/auth.store";
 import { authApi } from "../../lib/api/auth.api";
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Label } from "@radix-ui/react-label";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
@@ -36,40 +48,60 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-20">
-      <div className="bg-white p-8 rounded-xl shadow-lg border">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border rounded mb-4"
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border rounded mb-4"
-          />
-
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-3 rounded font-bold hover:bgg-blue-700"
-          >
-            Sign In
-          </button>
-        </form>
-        <p className="text-center mt-4 text-sm">
-          Chưa có tài khoản?{" "}
-          <Link to="/register" className="text-blue-500 font-semibold">
-            Đăng ký ngay
-          </Link>
-        </p>
-      </div>
+    <div className="flex items-center justify-center min-h-screen from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 px-4">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl fomt-bold">Welcome back</CardTitle>
+          <CardDescription>
+            Hoc Axios Interceptor & Service Layer
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="example@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang đăng nhập...
+                </>
+              ) : (
+                "Login"
+              )}
+            </Button>
+            <div className="text-center text-sm">
+              <span className="text-muted-foreground">Chưa có tài khoản? </span>
+              <Link
+                to="/register"
+                className="text-primary hover:underline font-medium"
+              >
+                Đăng kí ngay
+              </Link>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

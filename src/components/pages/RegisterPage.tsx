@@ -1,102 +1,122 @@
-import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { authApi } from "../../lib/api/auth.api";
-import { useAuthStore } from "../../stores/auth.store";
-export default function RegisterPage() {
-  const setTokens = useAuthStore((state) => state.setTokens);
-  const navigate = useNavigate();
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Label } from "@radix-ui/react-label";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { authApi } from "../../lib/api/auth.api";
+
+export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const navigate = useNavigate();
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(null);
 
     try {
-      const res = await authApi.register({
-        email,
-        password,
-        fullName,
-      });
-
-      // auto login
-      setTokens(res.accessToken, res.refreshToken);
-
-      navigate("/", { replace: true });
+      await authApi.register({ fullName, email, password });
+      navigate("/login");
     } catch (err: any) {
-      console.error("Register error:", err);
-
-      setError(
-        err?.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại",
-      );
+      setError("Đăng ký thất bại");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-20">
-      <div className="bg-white p-8 rounded-xl shadow-lg border">
-        <h2 className="text-2xl font-bold mb-6 text-center">Đăng ký</h2>
+    <div className="flex items-center justify-center min-h-screen from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
+          <CardDescription>
+            Học Axios Interceptor & Service Layer
+          </CardDescription>
+        </CardHeader>
 
-        <form onSubmit={handleSubmit}>
-          {/* Full name */}
-          <input
-            type="text"
-            placeholder="Họ và tên"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            className="w-full p-3 border rounded mb-4"
-            required
-          />
+        <CardContent>
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full name</Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Nguyễn Văn A"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+            </div>
 
-          {/* Email */}
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border rounded mb-4"
-            required
-          />
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="example@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-          {/* Password */}
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border rounded mb-4"
-            required
-          />
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-          {/* Error */}
-          {error && (
-            <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
-          )}
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-500 text-white p-3 rounded font-bold hover:bg-blue-600 disabled:opacity-60"
-          >
-            {loading ? "Đang xử lý..." : "Đăng ký"}
-          </button>
-        </form>
+            <Button
+              type="submit"
+              className="w-full flex items-center justify-center"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang đăng ký...
+                </>
+              ) : (
+                "Register"
+              )}
+            </Button>
 
-        <p className="text-center mt-4 text-sm">
-          Đã có tài khoản?{" "}
-          <Link to="/login" className="text-blue-500 font-semibold">
-            Đăng nhập
-          </Link>
-        </p>
-      </div>
+            <div className="text-center text-sm">
+              <span className="text-muted-foreground">Đã có tài khoản? </span>
+              <Link
+                to="/login"
+                className="text-primary hover:underline font-medium"
+              >
+                Đăng nhập
+              </Link>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
